@@ -1,0 +1,67 @@
+;; recv_internal function testing
+[int, tuple, cell, tuple, int] test_example_data() method_id(0) {
+    int function_selector = 0; ;; which funciton we suppose to call
+
+    cell message = begin_cell()
+                    .store_uint(11, 32)
+                    .end_cell();
+    
+    tuple stack = unsafe_tuple([message.begin_parse()]);
+
+    cell data = begin_cell()
+                    .store_uint(0, 64)
+                    .end_cell();
+
+    return [function_selector, stack, data, get_c7(), null()];
+}
+
+_ test_example(int exit_code, cell data, tuple stack, cell actions, int gas) method_id(1) {
+    throw_if(100, exit_code != 0);
+
+    var ds = data.begin_parse();
+
+    throw_if(101, ds~load_uint(64) != 11);
+    throw_if(102, gas > 1000000);
+}
+
+;; get method testing
+
+[int, tuple, cell, tuple, int] test_get_total_data() method_id(2) {
+    int function_selector = 128253;
+
+    tuple stack = unsafe_tuple([]);
+
+    cell data = begin_cell()
+                    .store_uint(11, 64)
+                    .end_cell();
+
+    return [function_selector, stack, data, get_c7(), null()];
+}
+
+_ test_get_total(int exit_code, cell data, tuple stack, cell actions, int gas) method_id(3) {
+    throw_if(103, exit_code != 0);
+    int counter = first(stack);
+    throw_if(104, counter != 11);
+}
+
+;; exception testing
+
+[int, tuple, cell, tuple, int] test_exception_data() method_id(4) {
+    int funciton_selector = 0;
+
+    cell message = begin_cell()
+                    .store_uint(36, 30)
+                    .end_cell();
+
+    tuple stack = unsafe_tuple([message.begin_parse()]);
+
+    cell data = begin_cell()
+                    .store_uint(0, 64)
+                    .end_cell();
+
+    return [funciton_selector, stack, data, get_c7(), null()];
+}
+
+_ test_exception(int exit_code, cell data, tuple stack, cell actions, int gas) method_id(5) {
+    throw_if(105, exit_code == 0); ;; throw if contract is invoked successful
+}
